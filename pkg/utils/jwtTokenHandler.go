@@ -1,17 +1,22 @@
 package utils
 
 import (
+	"time"
+
 	"example.com/m/app/models"
 	"github.com/golang-jwt/jwt/v4"
 )
 
 func GenerateToke(userData models.User) (string, error) {
-	// Create a new claims.
-	claims := jwt.MapClaims{}
-
-	claims["UserId"] = userData.UserId
-	claims["Email"] = userData.Email
-	claims["Password"] = userData.Password
+	//Expiry 1 day
+	expirationTime := time.Now().Add(24 * time.Hour)
+	// Create JWT claims
+	claims := jwt.MapClaims{
+		"UserId":   userData.UserId,
+		"Email":    userData.Email,
+		"Password": userData.Password,
+		"exp":      expirationTime.Unix(), // Expiration time in Unix timestamp
+	}
 
 	// Create a new JWT access token with claims.
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -22,4 +27,35 @@ func GenerateToke(userData models.User) (string, error) {
 	}
 	// Return the token string.
 	return t, nil
+}
+
+func InvalidateToken(tokenString string) (string, error) {
+	// Parse the token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte("secret"), nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	// Extract claims
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return "", err
+	}
+
+	// Set expiration time to 5 seconds from now
+	claims["exp"] = time.Now().Add(5 * time.Second).Unix()
+
+	// Create a new token with updated claims
+	newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Sign and get the complete encoded token as a string
+	tokenString, err = newToken.SignedString([]byte("secret"))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }
