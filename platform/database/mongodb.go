@@ -28,5 +28,8 @@ func InitializeMongoDB() {
 }
 
 func GetMongoCLient() *mongo.Client {
+	if GlobalMongoClient == nil {
+		InitializeMongoDB()
+	}
 	return GlobalMongoClient
 }
