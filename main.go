@@ -1,17 +1,15 @@
 package main
 
 import (
-	"fmt"
-
+	"example.com/m/platform/database"
 	"github.com/gofiber/fiber/v3"
 )
 
 func main() {
+
+	database.InitializeMongoDB()
+
 	app := fiber.New()
-	fmt.Println("app started")
-	// app.Get("/", func(c *fiber.Ctx) error {
-	// 	return c.SendString("Hello, World!")
-	// })
 	app.Get("/", func(c fiber.Ctx) error {
 		// Send a string response to the client
 		return c.SendString("Hello, World 👋!")
