@@ -1,8 +1,13 @@
 package models
 
 type Task struct {
-	TaskId    string `json:"userId"`
-	CreatedBY string `json:"createdBy"`
-	TaskName  string `json:"taskName"`
-	Username  string `json:"username"`
+	TaskId     string `json:"taskId"`
+	CreatedBY  string `json:"createdBy"`
+	TaskName   string `json:"taskName"`
+	TaskDetail string `json:"taskDetail"`
+}
+
+type CreateTask struct {
+	TaskName   string `json:"taskName"`
+	TaskDetail string `json:"taskDetail"`
 }
