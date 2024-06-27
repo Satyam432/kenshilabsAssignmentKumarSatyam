@@ -1,5 +1,7 @@
 package models
 
+//Here the model is defined for task
+
 type Task struct {
 	TaskId     string `json:"taskId"`
 	CreatedBY  string `json:"createdBy"`

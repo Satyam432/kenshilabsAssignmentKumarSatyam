@@ -1,5 +1,7 @@
 package models
 
+//Here the model is defined for user
+
 type User struct {
 	UserId   string `json:"userId"`
 	Email    string `json:"email"`

@@ -1,6 +1,6 @@
 # kenshilabsAssignmentKumarSatyam
 
-`Setting Up`- 
+Setting Up
 -```go mod tidy```
  then run ->
 -```go run main.go```
