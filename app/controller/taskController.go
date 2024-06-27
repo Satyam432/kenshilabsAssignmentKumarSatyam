@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"example.com/m/app/models"
 	"example.com/m/platform/database"
 	"github.com/gofiber/fiber/v2"
@@ -140,5 +142,31 @@ func UpdateTask(c *fiber.Ctx) error {
 }
 
 func DeleteTask(c *fiber.Ctx) error {
-	return nil
+	taskId := c.Params("id")
+	// Get MongoDB client
+	client := database.GetMongoCLient()
+
+	// Define filter to find the task by ID
+	filter := bson.M{"taskid": taskId}
+
+	// Perform delete operation
+	result, err := client.Database("UserTask").Collection("Tasks").DeleteOne(c.Context(), filter)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	// Check if any document was deleted
+	if result.DeletedCount == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Task not found",
+		})
+	}
+
+	// Return success response
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": fmt.Sprintf("Task with ID %s deleted successfully", taskId),
+	})
+
 }
