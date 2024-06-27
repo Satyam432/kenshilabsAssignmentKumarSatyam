@@ -3,7 +3,7 @@
 Setting Up
 -```go mod tidy```
  then run ->
--```go run main.go```
+```go run main.go```
 
 - `POST /signup`: Create a new user account.
 - `POST /signin`: Authenticate a user and generate a JWT token with expiry 24hrs.
