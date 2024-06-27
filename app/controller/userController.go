@@ -12,6 +12,7 @@ import (
 func UserSignUp(c *fiber.Ctx) error {
 	userRequestData := new(models.SigninRequest)
 	if err := c.BodyParser(userRequestData); err != nil {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -29,6 +30,7 @@ func UserSignUp(c *fiber.Ctx) error {
 	g := database.GetMongoCLient()
 	_, err := g.Database("UserTask").Collection("Users").InsertOne(c.Context(), user)
 	if err != nil {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -41,6 +43,7 @@ func UserSignIn(c *fiber.Ctx) error {
 	//Fetch userBody
 	userRequestData := new(models.SigninRequest)
 	if err := c.BodyParser(userRequestData); err != nil {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -54,6 +57,7 @@ func UserSignIn(c *fiber.Ctx) error {
 	err := g.Database("UserTask").Collection("Users").FindOne(c.Context(), filter).Decode(&User)
 	//If user does not exist, return error
 	if err != nil {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "User not found",
 		})
@@ -67,6 +71,7 @@ func UserSignIn(c *fiber.Ctx) error {
 	//If user exists create a JWT token
 	token, errToken := utils.GenerateToke(User)
 	if errToken != nil {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": errToken.Error(),
 		})
@@ -90,6 +95,7 @@ func UserSignOut(c *fiber.Ctx) error {
 	// Call invalidate token function
 	newTokenString, err := utils.InvalidateToken(tokenString)
 	if err != nil {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})

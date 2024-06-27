@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"example.com/m/pkg/utils"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -17,6 +18,7 @@ func InitializeMongoDB() {
 	// Create a new client and connect to the server
 	GlobalMongoClient, mongoErr = mongo.Connect(context.TODO(), opts)
 	if mongoErr != nil {
+		utils.ErrorHandler(mongoErr)
 		fmt.Println("Error Initializing Mongo Client")
 	}
 }

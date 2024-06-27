@@ -20,6 +20,7 @@ func AuthenticateUser() func(*fiber.Ctx) error {
 		// Extract the email from the token
 		email, err := utils.ExtractEmailFromToken(tokenString)
 		if err != nil {
+			utils.ErrorHandler(err)
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "Invalid or expired JWT",
 			})
@@ -32,6 +33,7 @@ func AuthenticateUser() func(*fiber.Ctx) error {
 		var result bson.M
 		err = collection.FindOne(c.Context(), bson.M{"email": email}).Decode(&result)
 		if err != nil {
+			utils.ErrorHandler(err)
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": err.Error(),
 			})

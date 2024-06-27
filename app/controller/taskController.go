@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"example.com/m/app/models"
+	"example.com/m/pkg/utils"
 	"example.com/m/platform/database"
 	"github.com/gofiber/fiber/v2"
 	gonanoid "github.com/matoous/go-nanoid"
@@ -16,6 +17,8 @@ func PostTask(c *fiber.Ctx) error {
 	email := user["email"].(string)
 	taskRequestData := new(models.CreateTask)
 	if err := c.BodyParser(taskRequestData); err != nil {
+
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),
 		})
@@ -34,6 +37,7 @@ func PostTask(c *fiber.Ctx) error {
 	g := database.GetMongoCLient()
 	_, errInserting := g.Database("UserTask").Collection("Tasks").InsertOne(c.Context(), task)
 	if errInserting != nil {
+		utils.ErrorHandler(errInserting)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": errInserting.Error(),
 		})
@@ -54,6 +58,7 @@ func GetTask(c *fiber.Ctx) error {
 	// Perform find operation to get all tasks for the user
 	cursor, err := client.Database("UserTask").Collection("Tasks").Find(c.Context(), filter)
 	if err != nil {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -65,6 +70,7 @@ func GetTask(c *fiber.Ctx) error {
 	for cursor.Next(c.Context()) {
 		var task bson.M
 		if err := cursor.Decode(&task); err != nil {
+			utils.ErrorHandler(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": err.Error(),
 			})
@@ -91,6 +97,7 @@ func GetTaskById(c *fiber.Ctx) error {
 	err := client.Database("UserTask").Collection("Tasks").FindOne(c.Context(), filter).Decode(&task)
 	//If user does not exist, return error
 	if err != nil {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Task not found",
 		})
@@ -103,6 +110,7 @@ func UpdateTask(c *fiber.Ctx) error {
 	taskId := c.Params("id")
 	taskUpdate := new(models.CreateTask) // Adjust this based on your task update structure
 	if err := c.BodyParser(taskUpdate); err != nil {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid request payload",
 		})
@@ -122,6 +130,7 @@ func UpdateTask(c *fiber.Ctx) error {
 	// Perform update operation
 	result, err := client.Database("UserTask").Collection("Tasks").UpdateOne(c.Context(), filter, updateFilter)
 	if err != nil {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -129,6 +138,7 @@ func UpdateTask(c *fiber.Ctx) error {
 
 	// Check if the task was updated successfully
 	if result.ModifiedCount == 0 {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Task not found or no changes applied",
 		})
@@ -152,6 +162,7 @@ func DeleteTask(c *fiber.Ctx) error {
 	// Perform delete operation
 	result, err := client.Database("UserTask").Collection("Tasks").DeleteOne(c.Context(), filter)
 	if err != nil {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -159,6 +170,7 @@ func DeleteTask(c *fiber.Ctx) error {
 
 	// Check if any document was deleted
 	if result.DeletedCount == 0 {
+		utils.ErrorHandler(err)
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Task not found",
 		})
