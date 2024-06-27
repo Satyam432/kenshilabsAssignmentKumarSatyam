@@ -87,17 +87,6 @@ func UserSignOut(c *fiber.Ctx) error {
 		})
 	}
 
-	// fmt.Println(authHeader)
-
-	// // Typically the token is in the format "Bearer <token>"
-	// parts := strings.Split(authHeader, " ")
-	// if len(parts) != 2 || parts[0] != "Bearer" {
-	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-	// 		"error": "Invalid authorization header format",
-	// 	})
-	// }
-	// tokenString := parts[1]
-
 	// Call invalidate token function
 	newTokenString, err := utils.InvalidateToken(tokenString)
 	if err != nil {
