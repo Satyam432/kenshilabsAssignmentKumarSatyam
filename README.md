@@ -12,6 +12,6 @@ Setting Up
 
 - `POST /tasks`: Create a new task 
 - `GET /tasks`: Retrieve all tasks for the authenticated user.
-- `GET /tasks/:id`: Retrieve a specific task by ID 
-- `PUT /tasks/:id`: Update a task by ID 
-- `DELETE /tasks/:id`: Delete a task by ID 
+- `GET /tasks/:id`: Retrieve a specific task by ID [taskId(internally nanoGeneratedId) is the :id]
+- `PUT /tasks/:id`: Update a task by ID [taskId(internally nanoGeneratedId) is the :id]
+- `DELETE /tasks/:id`: Delete a task by ID [taskId(internally nanoGeneratedId) is the :id]
