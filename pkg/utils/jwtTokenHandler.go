@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 
 	"example.com/m/app/models"
@@ -58,4 +59,28 @@ func InvalidateToken(tokenString string) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func ExtractEmailFromToken(tokenString string) (string, error) {
+	// Parse the token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Validate the signing method
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		// Return the secret signing key
+		return []byte("secret"), nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	// Extract the claims
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		email := claims["Email"].(string)
+		return email, nil
+	} else {
+		return "", fmt.Errorf("invalid token")
+	}
 }

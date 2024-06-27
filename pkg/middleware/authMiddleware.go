@@ -1,30 +1,45 @@
 package middleware
 
-// import (
-// 	"github.com/gofiber/fiber/v2"
-// )
+import (
+	"example.com/m/pkg/utils"
+	"example.com/m/platform/database"
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
+)
 
-// func AuthenticateUser() func(*fiber.Ctx) error {
+func AuthenticateUser() func(*fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		// Get the token from the Authorization header
+		tokenString := c.Get("Authorization")
+		if tokenString == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Missing or malformed JWT",
+			})
+		}
 
-// }
+		// Extract the email from the token
+		email, err := utils.ExtractEmailFromToken(tokenString)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Invalid or expired JWT",
+			})
+		}
 
-// func AssignAuthentication() func(*fiber.Ctx) error {
-// 	return func(c *fiber.Ctx) error {
-// 		// Define a struct to hold the request body data
-// 		userData := struct {
-// 			Password string `json:"password"`
-// 			Email    string `json:"email"`
-// 		}{}
+		// Connect to MongoDB
+		g := database.GetMongoCLient()
 
-// 		// Parse the request body
-// 		if err := c.BodyParser(&userData); err != nil {
-// 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
-// 		}
+		// Check if the user exists in MongoDB
+		collection := g.Database("your_database_name").Collection("users")
+		var result bson.M
+		err = collection.FindOne(c.Context(), bson.M{"email": email}).Decode(&result)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "User not found",
+			})
+		}
 
-// 		// Set the email in the context locals
-// 		c.Locals("email", userData.Email)
-
-// 		// Continue with the next handler
-// 		return c.Next()
-// 	}
-// }
+		// If user exists, set user info in the context and proceed
+		c.Locals("user", result)
+		return c.Next()
+	}
+}
