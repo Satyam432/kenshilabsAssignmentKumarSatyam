@@ -19,12 +19,6 @@ func InitializeMongoDB() {
 	if mongoErr != nil {
 		fmt.Println("Error Initializing Mongo Client")
 	}
-
-	// defer func() {
-	// 	if mongoErr = GlobalMongoClient.Disconnect(context.TODO()); mongoErr != nil {
-	// 		panic(mongoErr)
-	// 	}
-	// }()
 }
 
 func GetMongoCLient() *mongo.Client {

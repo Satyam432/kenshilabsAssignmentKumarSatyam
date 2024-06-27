@@ -7,7 +7,6 @@ import (
 )
 
 func main() {
-
 	database.InitializeMongoDB()
 
 	app := fiber.New()
