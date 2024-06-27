@@ -11,8 +11,8 @@ func TaskRoutes(a *fiber.App) {
 
 	// Task Management Endpoints
 	route.Post("/tasks", middleware.AuthenticateUser(), controller.PostTask)
-	route.Get("/tasks", controller.GetTask)
-	route.Get("/tasks/:id", controller.GetTaskById)
-	route.Put("/tasks/:id", controller.UpdateTask)
-	route.Delete("/tasks/:id", controller.DeleteTask)
+	route.Get("/tasks", middleware.AuthenticateUser(), controller.GetTask)
+	route.Get("/tasks/:id", middleware.AuthenticateUser(), controller.GetTaskById)
+	route.Put("/tasks/:id", middleware.AuthenticateUser(), controller.UpdateTask)
+	route.Delete("/tasks/:id", middleware.AuthenticateUser(), controller.DeleteTask)
 }

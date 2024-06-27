@@ -40,11 +40,61 @@ func PostTask(c *fiber.Ctx) error {
 }
 
 func GetTask(c *fiber.Ctx) error {
-	return nil
+
+	user := c.Locals("user").(bson.M)
+	email := user["email"].(string)
+	// Get MongoDB client
+	client := database.GetMongoCLient()
+
+	// Define filter to find tasks by email
+	filter := bson.M{"createdby": email}
+
+	// Perform find operation to get all tasks for the user
+	cursor, err := client.Database("UserTask").Collection("Tasks").Find(c.Context(), filter)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	defer cursor.Close(c.Context())
+
+	// Iterate through the cursor and collect tasks
+	var tasks []bson.M
+	for cursor.Next(c.Context()) {
+		var task bson.M
+		if err := cursor.Decode(&task); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+		tasks = append(tasks, task)
+	}
+
+	// Check if any tasks were found
+	if len(tasks) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "No tasks found for the user",
+		})
+	}
+
+	// Return tasks in JSON response
+	return c.Status(fiber.StatusOK).JSON(tasks)
 }
 
 func GetTaskById(c *fiber.Ctx) error {
-	return nil
+	taskId := c.Params("id")
+	client := database.GetMongoCLient()
+	filter := bson.M{"taskid": taskId}
+	var task models.Task
+	err := client.Database("UserTask").Collection("Tasks").FindOne(c.Context(), filter).Decode(&task)
+	//If user does not exist, return error
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Task not found",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(task)
 }
 
 func UpdateTask(c *fiber.Ctx) error {
