@@ -98,7 +98,45 @@ func GetTaskById(c *fiber.Ctx) error {
 }
 
 func UpdateTask(c *fiber.Ctx) error {
-	return nil
+	taskId := c.Params("id")
+	taskUpdate := new(models.CreateTask) // Adjust this based on your task update structure
+	if err := c.BodyParser(taskUpdate); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request payload",
+		})
+	}
+
+	client := database.GetMongoCLient()
+	filter := bson.M{"taskid": taskId}
+
+	//Update
+	updateFilter := bson.M{
+		"$set": bson.M{
+			"taskname":   taskUpdate.TaskName,
+			"taskdetail": taskUpdate.TaskDetail,
+		},
+	}
+
+	// Perform update operation
+	result, err := client.Database("UserTask").Collection("Tasks").UpdateOne(c.Context(), filter, updateFilter)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	// Check if the task was updated successfully
+	if result.ModifiedCount == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Task not found or no changes applied",
+		})
+	}
+
+	// Return success response
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Task updated successfully",
+	})
+
 }
 
 func DeleteTask(c *fiber.Ctx) error {
