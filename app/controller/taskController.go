@@ -2,20 +2,16 @@ package controller
 
 import (
 	"example.com/m/app/models"
-	"example.com/m/pkg/utils"
 	"example.com/m/platform/database"
 	"github.com/gofiber/fiber/v2"
 	gonanoid "github.com/matoous/go-nanoid"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func PostTask(c *fiber.Ctx) error {
-	tokenString := c.Get("Authorization")
-	email, err := utils.ExtractEmailFromToken(tokenString)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid token",
-		})
-	}
+
+	user := c.Locals("user").(bson.M)
+	email := user["email"].(string)
 	taskRequestData := new(models.CreateTask)
 	if err := c.BodyParser(taskRequestData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

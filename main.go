@@ -13,6 +13,7 @@ func main() {
 	app := fiber.New()
 
 	routes.UserRoutes(app)
+	routes.TaskRoutes(app)
 
 	app.Listen(":3000")
 	// app.Listen(":3000")

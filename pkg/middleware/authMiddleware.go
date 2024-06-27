@@ -27,14 +27,13 @@ func AuthenticateUser() func(*fiber.Ctx) error {
 
 		// Connect to MongoDB
 		g := database.GetMongoCLient()
-
 		// Check if the user exists in MongoDB
-		collection := g.Database("your_database_name").Collection("users")
+		collection := g.Database("UserTask").Collection("Users")
 		var result bson.M
 		err = collection.FindOne(c.Context(), bson.M{"email": email}).Decode(&result)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "User not found",
+				"error": err.Error(),
 			})
 		}
 
